@@ -1,6 +1,6 @@
 <html>
 	<head>
-		<title>My first Three.js app</title>
+		<title>Cylinder + Spheres</title>
 		<style>canvas { width: 100%; height: 100% }</style>
 	</head>
 	<body>
@@ -8,44 +8,65 @@
 		<script src="Three.js\examples\js\controls\FlyControls.js"></script>
 		<script src="Three.js\examples\js\libs\stats.min.js"></script>
 		<script>
-			var scene = new THREE.Scene();
-			var camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
+			var scene = new THREE.Scene();																			// Create the scene
+			var camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );		// Create the camera
 			
-			var renderer = new THREE.WebGLRenderer();
+			// Create the renderer object
+			var renderer = new THREE.WebGLRenderer();					
 			renderer.setSize(window.innerWidth, window.innerHeight);
 			renderer.setClearColor(0x828282, 1);
 			document.body.appendChild(renderer.domElement);
 			
-			var light = new THREE.HemisphereLight(0xFFFFFF, 0.5);
+			// Create a light
+			var light = new THREE.HemisphereLight(0xFFFFFF, 0.5);		
 			light.position.set(0, 6, 0);
 			scene.add(light);
 			
-			var controls = new THREE.FlyControls(camera);
+			// Initialize FlyControls
+			var controls = new THREE.FlyControls(camera);		 
 			controls.movementSpeed = 0.001;
 			controls.rollSpeed = Math.PI / 1024;
 			controls.autoForward = false;
 			controls.dragToLook = true;
 			
+			var radius = 2;		// Cynlinder's radius
 			
-			var geometry = new THREE.CylinderGeometry(2, 2, 0.1, 64, 1, false);
+			// Create the base cylinder
+			var geometry = new THREE.CylinderGeometry(radius, radius, 0.1, 64, 1, false);
 			var material = new THREE.MeshLambertMaterial( { color: 0x0000FF } );
 			var cylinder = new THREE.Mesh(geometry, material);
 			cylinder.position.set(0, 0, 0);
 			scene.add(cylinder);
 			
-			for(var i=0; i<100; ++i)
-			{
-				var spGeo = new THREE.SphereGeometry(0.02, 64, 64, 0, Math.PI * 2, 0, Math.PI);
-				var spMat = new THREE.MeshLambertMaterial( { color: 0xFF0000 } );
-				var sphere = new THREE.Mesh(spGeo, spMat);
-				sphere.position.x = Math.random() * 4 - 2;
-				sphere.position.y = 0.1;
-				sphere.position.z = Math.random() * (Math.sin(Math.acos(sphere.position.x / 2)) * 2);
-				scene.add(sphere);
+			// Generate spheres on the cylinder
+			function generateSpheres(r, spNbr) {
+			
+				var spRadius = r // Sphere's radius
+				var spGeo = new THREE.SphereGeometry(spRadius, 64, 64, 0, Math.PI * 2, 0, Math.PI); // Outside of the for statement = faster loading time
+				var spMat = new THREE.MeshLambertMaterial( { color: 0xFF0000 } );					// Same here
+			
+				var s = 0; // Will be used to determine if sphere.position.z is >0 or <0
+			
+				for(var i=0; i<spNbr; ++i)
+				{
+				
+					Math.random() > 0.5 ? s = -1 : s = 1;	//Fast if statement, randomly determine if z is >0 or not
+				
+					//Create a sphere and place it randomly on the cylinder
+					var sphere = new THREE.Mesh(spGeo, spMat);
+					sphere.position.x = Math.random() * (2 * radius) - (radius + spRadius);
+					sphere.position.y = 0.1;
+					sphere.position.z = s * (Math.random() * (Math.sin(Math.acos(sphere.position.x / radius)) * radius)); // Compute z so that it does not go outside the cylinder
+					scene.add(sphere);
+				}
+			
 			}
 			
+			generateSpheres(0.02, 300);
 			
 			
+			
+			// Move the camera to (0, 5, 0), and make it look at the cylinder
 			camera.position.y = 5;
 			var a = new THREE.Vector3(0, 0, 0);
 			camera.lookAt(a);
