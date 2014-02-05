@@ -1,0 +1,115 @@
+<html>
+	<head>
+		<title>Event</title>
+		<style>
+			html, body {
+				height: 100%;
+			}
+
+			body {
+				background-color: #000000;
+				margin: 0;
+				font-family: Arial;
+				overflow: hidden;
+			}
+
+			#search {
+				position: absolute;
+				bottom: 450px;
+				width: 100%;
+				text-align: center;
+			}
+
+			#search input {
+				color: #ffffff;
+				background-color: transparent;
+				border: 1px solid #ff0000;
+				padding: 10px;
+				font-size: 20px;
+				text-transform: uppercase;
+				-webkit-border-radius: 0px; /* workaround for ios safari */
+			}
+
+			#search button {
+				color: #ff0000;
+				background-color: transparent;
+				border: 1px solid #ff0000;
+				padding: 10px;
+				font-size: 20px;
+				text-transform: uppercase;
+				cursor: pointer;
+			}
+		</style>
+	</head>
+	<body id="body">
+	
+		<script src="three.js"></script>
+		<script src="FlyControls.js"></script>
+		<script src="stats.min.js"></script>
+
+		<div id="search" hidden><input id="query" type="text" value="Search"><button id="button">search</button></div>
+		
+		<script>
+			var scene = new THREE.Scene();																			// Create the scene
+			var camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );		// Create the camera
+			
+			// Create the renderer object
+			var renderer = new THREE.WebGLRenderer();					
+			renderer.setSize(window.innerWidth, window.innerHeight);
+			renderer.setClearColor(0x828282, 1);
+			document.body.appendChild(renderer.domElement);
+			
+			// Create a light
+			var light = new THREE.HemisphereLight(0xFFFFFF, 0.5);		
+			light.position.set(0, 6, 0);
+			scene.add(light);
+			
+			// Move the camera to (0, 5, 0), and make it look at the cylinder
+			camera.position.y = 5;
+			var a = new THREE.Vector3(0, 0, 0);
+			camera.lookAt(a);
+			
+			var search = document.getElementById('search');
+			var button = document.getElementById('button');
+			var click = document.getElementById('body');		
+			click.addEventListener('click', function() {
+			
+					var geometry = new THREE.SphereGeometry(2, 64, 64, 0, Math.PI * 2, 0, Math.PI);
+					var material = new THREE.MeshLambertMaterial( { color: 0x0000FF } );
+					var sphere = new THREE.Mesh(geometry, material);
+					scene.add(sphere);
+					
+					search.hidden=false;
+				}
+			, false);
+			
+			button.addEventListener('click', function() {
+			
+				var timer;
+				var prevPos = new THREE.Vector3(0, 0, 0);
+				prevPos = camera.position;
+				
+				for(var i=0; i < 5 ; ++i) {
+					
+					timer = setTimeout(function(){ camera.position.y += 1; }, 1000);
+					
+				
+				}
+
+			}, false);
+			
+			
+			// Create and call the render function that compute what will apear on screen
+			function render() {
+			
+				requestAnimationFrame(render);
+				renderer.render(scene, camera);
+			}
+			render();
+			
+		</script>
+		
+	</body>
+	
+</html>
+
