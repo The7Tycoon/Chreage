@@ -50,8 +50,11 @@
 		<div id="search" hidden><input id="query" type="text" value="Search"><button id="button">search</button></div>
 		
 		<script>
+			
 			var scene = new THREE.Scene();																			// Create the scene
 			var camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );		// Create the camera
+			
+			var zoomOut = false;
 			
 			// Create the renderer object
 			var renderer = new THREE.WebGLRenderer();					
@@ -84,19 +87,49 @@
 			, false);
 			
 			button.addEventListener('click', function() {
-			
-				var timer;
-				var prevPos = new THREE.Vector3(0, 0, 0);
-				prevPos = camera.position;
-				
-				for(var i=0; i < 5 ; ++i) {
-					
-					timer = setTimeout(function(){ camera.position.y += 1; }, 1000);
-					
-				
-				}
-
+				zoomOut = true;
 			}, false);
+			
+			
+			function generateResults(pos, nbSphere, colors) {
+			
+				var geoRes = new THREE.SphereGeometry(2, 64, 64, 0, Math.PI * 2, 0, Math.PI);
+				var matRes = new THREE.MeshLambertMaterial( { color: colors } );
+				
+				
+				g(0, 0, 0, nbSphere, pos);
+				
+				function g(x, z, i, max, pos) {
+				
+					if(i === max)
+						return ;
+				
+					var spRes = new THREE.Mesh(geoRes, matRes);
+					
+					var t;
+					if(i === 0)
+					{
+						t = pos * Math.PI/2;
+					}
+					else
+					{
+						t = (Math.random() * (Math.PI)/2);
+					}
+					
+					spRes.position.x = Math.cos(t) * (2+5) + x;
+					spRes.position.z = Math.sin(t) * (2+5) + z;
+					spRes.position.y = 0;
+					scene.add(spRes);
+					i++;
+					g(spRes.position.x, spRes.position.z, i, max, pos);
+					
+				}
+				
+				
+			}
+			
+			generateResults(0, 4, 0xFF0000);
+			generateResults(2, 4, 0x00FF00);
 			
 			
 			// Create and call the render function that compute what will apear on screen
@@ -104,6 +137,14 @@
 			
 				requestAnimationFrame(render);
 				renderer.render(scene, camera);
+				if(zoomOut === true)
+				{
+					if(camera.position.y <= 20)
+					{
+						camera.position.y += 0.1;
+						search.style.bottom='80px';
+					}
+				}
 			}
 			render();
 			
@@ -112,4 +153,5 @@
 	</body>
 	
 </html>
+
 
